@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,6 +22,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { subjects } from "@/constants";
+import { CreateCompanion } from "@/lib/actions/companion.action";
+import { redirect } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Companion Name is required" }),
@@ -46,8 +47,15 @@ const CompanionForm = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const companion = await CreateCompanion(values);
+
+    if (companion) {
+      redirect(`/companions/${companion.id}`);
+    } else {
+      console.log("Failed to create companion");
+      redirect("/");
+    }
   };
   return (
     <Form {...form}>
@@ -121,6 +129,36 @@ const CompanionForm = () => {
 
         <FormField
           control={form.control}
+          name="voice"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Voice</FormLabel>
+              <FormControl>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value}
+                  defaultValue={field.value}
+                >
+                  <SelectTrigger className="input capitalize">
+                    <SelectValue placeholder="Select a voice" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male" className="capitalize">
+                      Male
+                    </SelectItem>
+                    <SelectItem value="female" className="capitalize">
+                      Female
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="style"
           render={({ field }) => (
             <FormItem>
@@ -136,7 +174,7 @@ const CompanionForm = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="formal">Formal</SelectItem>
-                    <SelectItem value="informal">Informal</SelectItem>
+                    <SelectItem value="casual">Casual</SelectItem>
                   </SelectContent>
                 </Select>
               </FormControl>
