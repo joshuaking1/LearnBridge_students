@@ -5,7 +5,7 @@ const Page = () => {
   return (
     <div>
       <h1 className="text-2xl underline">Welcome to ny sass App</h1>
-      <Button>Let's Get Started</Button>
+      <Button>Lets Get Started</Button>
     </div>
   );
 };
