@@ -4,6 +4,8 @@ import CompanionCard from "@/components/CompanionCard";
 import CompainonsList from "@/components/CompainonsList";
 import CTA from "@/components/CTA";
 import { recentSessions } from "@/constants";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
+import Link from "next/link";
 
 const Page = () => {
   return (
