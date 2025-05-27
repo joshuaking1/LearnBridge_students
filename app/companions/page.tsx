@@ -1,48 +1,39 @@
-import { redirect } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import CompainonsList from "@/components/CompainonsList";
+import CompanionCard from "@/components/CompanionCard";
+import SearchInput from "@/components/SearchInput";
+import SubjectFilter from "@/components/SubjectFilter";
+import { GetAllCompanions } from "@/lib/actions/companion.action";
+import { getSubjectColor } from "@/lib/utils";
 
-const CompanionsLibrary = async () => {
-  const { userId } = await auth();
+const Companions = async ({
+  searchParams,
+}: {
+  searchParams: { subject?: string; topic?: string };
+}) => {
+  const subject = searchParams?.subject || "";
+  const topic = searchParams?.topic || "";
 
-  // Redirect unauthenticated users to sign-in page
-  if (!userId) {
-    redirect("/sign-in");
-  }
-
-  // TODO: Fetch user's companions from database
-  // For now, we'll show an empty state
-  const userCompanions: Companion[] = [];
+  const companions = await GetAllCompanions({ subject, topic });
 
   return (
-    <main className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">My Companions</h1>
-        <Link href="/companions/new">
-          <Button className="btn-primary">Create New Companion</Button>
-        </Link>
-      </div>
-
-      {userCompanions.length > 0 ? (
-        <CompainonsList
-          title="Your AI Companions"
-          companions={userCompanions}
-        />
-      ) : (
-        <div className="companion-limit">
-          <h2 className="text-2xl font-semibold mb-4">No Companions Yet</h2>
-          <p className="text-gray-600 mb-6">
-            Create your first AI companion to start learning!
-          </p>
-          <Link href="/companions/new">
-            <Button className="btn-primary">Create Your First Companion</Button>
-          </Link>
+    <main>
+      <section className="flex justify-between gap-4 max-sm:flex-col">
+        <h1>Companion Library</h1>
+        <div className="flex gap-4">
+          <SearchInput />
+          <SubjectFilter />
         </div>
-      )}
+      </section>
+      <section className="companions-grid">
+        {companions.map((companion) => (
+          <CompanionCard
+            key={companion.id}
+            {...companion}
+            color={getSubjectColor(companion.subject)}
+          />
+        ))}
+      </section>
     </main>
   );
 };
 
-export default CompanionsLibrary;
+export default Companions;
